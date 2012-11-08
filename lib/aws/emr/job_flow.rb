@@ -167,6 +167,8 @@ module AWS
 
       attribute :bootstrap_actions
 
+      attribute :region
+
       populates_from(:describe_job_flows) do |resp|
         resp.data[:job_flows].find{|j| j[:job_flow_id] == job_flow_id }
       end
@@ -190,6 +192,11 @@ module AWS
         if name = availability_zone_name
           AWS::EC2.new(:config => config).availability_zones[name]
         end
+      end
+
+      def region=(region_name)
+        AWS::Core::Configuration.module_eval { add_service 'EMR', 'emr', region_name }
+        region = region_name
       end
 
       # Adds one (or more) steps to the current job flow.
